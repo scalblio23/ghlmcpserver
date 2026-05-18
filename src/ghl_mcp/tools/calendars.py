@@ -3,11 +3,11 @@ MCP tools for GoHighLevel Calendars & Appointments API.
 
 Endpoints used:
   GET    /calendars/
-  GET    /calendars/events/appointments
-  GET    /calendars/events/appointments/{eventId}
-  POST   /calendars/events/appointments
-  PUT    /calendars/events/appointments/{eventId}
-  DELETE /calendars/events/appointments/{eventId}
+  GET    /calendars/events
+  GET    /calendars/events/{eventId}
+  POST   /calendars/events
+  PUT    /calendars/events/{eventId}
+  DELETE /calendars/events/{eventId}
   GET    /calendars/{calendarId}/free-slots
 """
 
@@ -113,7 +113,7 @@ def register(mcp: FastMCP) -> None:
             Full appointment details including time, contact, calendar, and status.
         """
         client = get_client()
-        return client.get(f"/calendars/events/appointments/{appointment_id}")
+        return client.get(f"/calendars/events/{appointment_id}")
 
     @mcp.tool()
     def create_appointment(
@@ -159,7 +159,7 @@ def register(mcp: FastMCP) -> None:
             body["title"] = title
         if notes:
             body["notes"] = notes
-        return client.post("/calendars/events/appointments", body=body)
+        return client.post("/calendars/events", body=body)
 
     @mcp.tool()
     def update_appointment(
@@ -197,7 +197,7 @@ def register(mcp: FastMCP) -> None:
             body["status"] = status
         if notes is not None:
             body["notes"] = notes
-        return client.put(f"/calendars/events/appointments/{appointment_id}", body=body)
+        return client.put(f"/calendars/events/{appointment_id}", body=body)
 
     @mcp.tool()
     def delete_appointment(appointment_id: str) -> dict:
@@ -211,4 +211,4 @@ def register(mcp: FastMCP) -> None:
             Confirmation of deletion.
         """
         client = get_client()
-        return client.delete(f"/calendars/events/appointments/{appointment_id}")
+        return client.delete(f"/calendars/events/{appointment_id}")
