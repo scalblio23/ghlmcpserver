@@ -117,12 +117,27 @@ def register(mcp: FastMCP) -> None:
                 })
 
         if date_added_from or date_added_to:
-            date_filter: dict = {
-                "field": "dateAdded",
-                "operator": "between",
-                "value": [date_added_from or date_added_to, date_added_to or date_added_from],
-            }
-            filters.append(date_filter)
+            if date_added_from and date_added_to:
+                filters.append({
+                    "field": "dateAdded",
+                    "operator": "range",
+                    "value": {
+                        "gte": f"{date_added_from}T00:00:00.000Z",
+                        "lte": f"{date_added_to}T23:59:59.999Z",
+                    },
+                })
+            elif date_added_from:
+                filters.append({
+                    "field": "dateAdded",
+                    "operator": "gte",
+                    "value": f"{date_added_from}T00:00:00.000Z",
+                })
+            else:
+                filters.append({
+                    "field": "dateAdded",
+                    "operator": "lte",
+                    "value": f"{date_added_to}T23:59:59.999Z",
+                })
 
         if country:
             filters.append({
