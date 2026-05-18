@@ -119,14 +119,9 @@ def register(mcp: FastMCP) -> None:
         if date_added_from or date_added_to:
             date_filter: dict = {
                 "field": "dateAdded",
-                "operator": "range",
+                "operator": "between",
+                "value": [date_added_from or date_added_to, date_added_to or date_added_from],
             }
-            value: dict = {}
-            if date_added_from:
-                value["startDate"] = date_added_from
-            if date_added_to:
-                value["endDate"] = date_added_to
-            date_filter["value"] = value
             filters.append(date_filter)
 
         if country:
@@ -144,11 +139,7 @@ def register(mcp: FastMCP) -> None:
             })
 
         if filters:
-            body["filterGroups"] = [
-                {
-                    "filters": filters,
-                }
-            ]
+            body["filters"] = filters
 
         result = client.post("/contacts/search", body=body)
         return result
