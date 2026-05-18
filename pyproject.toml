@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "ghl-mcp-server"
+version = "1.0.0"
+description = "MCP server that connects Claude with GoHighLevel CRM"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "httpx>=0.27.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+ghl-mcp = "ghl_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
