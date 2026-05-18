@@ -3,6 +3,7 @@ MCP tools for GoHighLevel Contacts API.
 
 Endpoints used:
   GET    /contacts/search
+  POST   /contacts/search  (advanced search with filters)
   GET    /contacts/{contactId}
   POST   /contacts/
   PUT    /contacts/{contactId}
@@ -55,6 +56,101 @@ def register(mcp: FastMCP) -> None:
             "skip": skip,
         }
         result = client.get("/contacts/search", params=params)
+        return result
+
+    # ------------------------------------------------------------------ #
+    # Advanced Search (POST /contacts/search)
+    # ------------------------------------------------------------------ #
+
+    @mcp.tool()
+    def search_contacts_advanced(
+        tags: Optional[list[str]] = None,
+        date_added_from: Optional[str] = None,
+        date_added_to: Optional[str] = None,
+        query: Optional[str] = None,
+        country: Optional[str] = None,
+        source: Optional[str] = None,
+        page: int = 1,
+        page_limit: int = 20,
+    ) -> dict:
+        """
+        Search GoHighLevel contacts using advanced filters (tags, date ranges, etc.).
+        Uses POST /contacts/search which supports structured filter groups.
+
+        Args:
+            tags: List of tag names to filter by (e.g. ['S.IO - Funnel Leads', 'VIP']).
+                  Returns contacts that have ALL specified tags.
+            date_added_from: Start date for filtering by dateAdded (ISO format, e.g. '2026-05-16').
+            date_added_to: End date for filtering by dateAdded (ISO format, e.g. '2026-05-18').
+            query: Optional free-text search query (name, email, phone).
+            country: Filter by country code (e.g. 'US', 'AU').
+            source: Filter by lead source (e.g. 'Website', 'Referral').
+            page: Page number for pagination (default 1).
+            page_limit: Number of results per page (default 20, max 100).
+
+        Returns:
+            A dict with a 'contacts' list and 'total' count.
+        """
+        client = get_client()
+        location_id = get_location_id()
+
+        # Build the request body
+        body: dict = {
+            "locationId": location_id,
+            "page": page,
+            "pageLimit": min(page_limit, 100),
+        }
+
+        # Add free-text query if provided
+        if query:
+            body["query"] = query
+
+        # Build filter groups for structured filtering
+        filters: list[dict] = []
+
+        if tags:
+            for tag in tags:
+                filters.append({
+                    "field": "tags",
+                    "operator": "contains",
+                    "value": tag,
+                })
+
+        if date_added_from or date_added_to:
+            date_filter: dict = {
+                "field": "dateAdded",
+                "operator": "range",
+            }
+            value: dict = {}
+            if date_added_from:
+                value["startDate"] = date_added_from
+            if date_added_to:
+                value["endDate"] = date_added_to
+            date_filter["value"] = value
+            filters.append(date_filter)
+
+        if country:
+            filters.append({
+                "field": "country",
+                "operator": "eq",
+                "value": country,
+            })
+
+        if source:
+            filters.append({
+                "field": "source",
+                "operator": "eq",
+                "value": source,
+            })
+
+        if filters:
+            body["filterGroups"] = [
+                {
+                    "filters": filters,
+                }
+            ]
+
+        result = client.post("/contacts/search", body=body)
         return result
 
     # ------------------------------------------------------------------ #
