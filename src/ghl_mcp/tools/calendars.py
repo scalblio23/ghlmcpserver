@@ -88,8 +88,6 @@ def register(mcp: FastMCP) -> None:
         client = get_client()
         params: dict = {
             "locationId": get_location_id(),
-            "limit": limit,
-            "skip": skip,
         }
         if calendar_id:
             params["calendarId"] = calendar_id
