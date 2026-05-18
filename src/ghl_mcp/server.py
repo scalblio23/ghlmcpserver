@@ -59,7 +59,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--transport",
-        choices=["stdio", "http"],
+        choices=["stdio", "http", "sse"],
         default="stdio",
         help="Transport protocol (default: stdio for Claude Desktop/Code)",
     )
@@ -79,11 +79,27 @@ def main() -> None:
     mcp = create_server()
 
     if args.transport == "http":
+        import os
+        os.environ["UVICORN_HOST"] = args.host
+        os.environ["UVICORN_PORT"] = str(args.port)
+        os.environ["HOST"] = args.host
+        os.environ["PORT"] = str(args.port)
         print(
-            f"Starting GoHighLevel MCP Server via HTTP on {args.host}:{args.port}",
+            f"Starting GoHighLevel MCP Server via streamable-http on {args.host}:{args.port}",
             file=sys.stderr,
         )
-        mcp.run(transport="streamable-http", host=args.host, port=args.port)
+        mcp.run(transport="streamable-http")
+    elif args.transport == "sse":
+        import os
+        os.environ["UVICORN_HOST"] = args.host
+        os.environ["UVICORN_PORT"] = str(args.port)
+        os.environ["HOST"] = args.host
+        os.environ["PORT"] = str(args.port)
+        print(
+            f"Starting GoHighLevel MCP Server via SSE on {args.host}:{args.port}",
+            file=sys.stderr,
+        )
+        mcp.run(transport="sse")
     else:
         # stdio is the default — used by Claude Desktop and Claude Code
         mcp.run(transport="stdio")
