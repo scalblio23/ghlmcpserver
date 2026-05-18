@@ -99,7 +99,7 @@ def register(mcp: FastMCP) -> None:
             params["startTime"] = start_time
         if end_time:
             params["endTime"] = end_time
-        return client.get("/calendars/events/appointments", params=params)
+        return client.get("/calendars/events", params=params)
 
     @mcp.tool()
     def get_appointment(appointment_id: str) -> dict:
